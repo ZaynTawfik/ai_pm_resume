@@ -1,14 +1,41 @@
 import streamlit as st
+from openai import OpenAI, AuthenticationError, APIError
+
+# Page title
+st.title("Product Resume Generator")
 
 st.sidebar.title("PMResumes")
 openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 
+client = None  # Initialize client as None
+
+# Try to initialize OpenAI client with the provided key
+if openai_api_key:
+    try:
+        client = OpenAI(api_key=openai_api_key)
+    except AuthenticationError:
+        st.sidebar.error("Invalid OpenAI API Key. Please check your key or get a new one from the [OpenAI API Keys page](https://platform.openai.com/account/api-keys).")
+        client = None  # Ensure client remains None if there's an authentication error
+
+
 def get_completion_from_messages(messages, model="gpt-3.5-turbo", temperature=0, max_tokens=500):
-    response = client.chat.completions.create(model=model,
-    messages=messages,
-    temperature=temperature,
-    max_tokens=max_tokens)
-    return response.choices[0].message.content
+    # Prevent API call if the client is None
+    if client is None:
+        st.error("OpenAI client is not initialized due to an invalid API key.")
+        return None
+    
+    # Catch potential API call errors and display a friendly message
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+        return response.choices[0].message.content
+    except APIError as e:
+        st.error(f"An error occurred while making a request to OpenAI: CHeck your API Key")
+        return None
 
 def generate_nresume(name, phone, linkedin, location, education_list, experience_list, certifications_list, skills_list):
     cv_delimiter = "####"
@@ -28,14 +55,10 @@ def generate_nresume(name, phone, linkedin, location, education_list, experience
         {'role': 'system', 'content': system_message},
         {'role': 'user', 'content': f"{cv_delimiter}{cv_delimiter}{jd_delimiter}{jd_delimiter}"},
     ]
-    #response = get_completion_from_messages(messages)
-    response = "n res response"
+    response = get_completion_from_messages(messages)
+    #response = "n res response"
     return response
 
-# Page title
-st.title("Product Resume Generator")
-
-# --- PERSONAL INFO ---
 st.sidebar.header("Personal Information")
 name = st.sidebar.text_input("Full Name")
 phone = st.sidebar.text_input("Phone Number")
@@ -117,12 +140,15 @@ skills_list = [skill.strip() for skill in skills_input.split(",") if skill]
 if st.sidebar.button("AI Generate Cover Letter"):
     if not openai_api_key:
         st.warning("Please enter your OpenAI API Key.")
+    elif client is None:
+        st.sidebar.error("Invalid OpenAI API Key. Please verify your key at the [OpenAI API Keys page](https://platform.openai.com/account/api-keys).")    
     else:
         nresume = generate_nresume(name, phone, linkedin, location, education_list, experience_list, certifications_list, skills_list)
-        st.sidebar.success("Resume Generated!")
-        st.write(nresume)
+        if nresume:
+            st.sidebar.success("Resume Generated!")
+            st.write(nresume)
+        else:
+            st.sidebar.error("Failed to generate the resume. Please check your inputs and try again.")
         st.write(certifications_list)
         st.write(skills_list)
         st.write(skills_input)
-        
-
