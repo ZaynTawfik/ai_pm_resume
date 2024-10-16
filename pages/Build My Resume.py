@@ -4,7 +4,7 @@ from openai import OpenAI, AuthenticationError, APIError
 # Page title
 st.title("Product Resume Generator")
 
-st.sidebar.title("PMResumes")
+st.sidebar.title("PMResumes n")
 openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 
 client = None  # Initialize client as None
