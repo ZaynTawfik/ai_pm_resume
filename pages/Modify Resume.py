@@ -202,6 +202,6 @@ if st.sidebar.button("AI Generate Resume"):
         if resume:
             st.sidebar.success("Resume Generated!")
             components.html(resume, height=1000, scrolling=True)
-            st.html(resume)
+            #st.html(resume)
         else:
             st.sidebar.error("Failed to generate Resume. Please check your inputs and try again.")    
