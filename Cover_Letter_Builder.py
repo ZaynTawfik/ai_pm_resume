@@ -6,7 +6,7 @@ import streamlit.components.v1 as components
 st.title("Cover Letter Builder for Product Managers")
 
 st.sidebar.title("PMResumes")
-openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+openai_api_key = st.sidebar.text_input("Deepseek API Key", type="password")
 
 client = None  # Initialize client as None
 
@@ -15,7 +15,7 @@ if openai_api_key:
     try:
         client = OpenAI(api_key=openai_api_key, base_url="https://api.deepseek.com")
     except AuthenticationError:
-        st.sidebar.error("Invalid OpenAI API Key. Please check your key or get a new one from the [OpenAI API Keys page](https://platform.openai.com/account/api-keys).")
+        st.sidebar.error("Invalid API Key. Please check your key or get a new one from the [Deepseek Platform](https://platform.deepseek.com/api_keys).")
         client = None  # Ensure client remains None if there's an authentication error
 
 
@@ -35,7 +35,7 @@ def get_completion_from_messages(messages, model="deepseek-chat", temperature=0,
         )
         return response.choices[0].message.content
     except APIError as e:
-        st.error(f"An error occurred while making a request to OpenAI: CHeck your API Key")
+        st.error(f"An error occurred while making a request to OpenAI/Deepseek: Check your API Key")
         return None
 
 def generate_cover_letter(name, role, jd, cv):
@@ -158,9 +158,9 @@ cv = st.sidebar.text_area("Resume")
 if st.sidebar.button("AI Generate Cover Letter"):
     
     if not openai_api_key:
-        st.warning("Please enter your OpenAI API Key m.")
+        st.warning("Please enter your OpenAI/Deepseek API Key.")
     elif client is None:
-        st.sidebar.error("Invalid OpenAI API Key. Please verify your key at the [OpenAI API Keys page](https://platform.openai.com/account/api-keys).")
+        st.sidebar.error("Invalid API Key. Please verify your key at the [OpenAI API Keys page](https://platform.deepseek.com/api_keys).")
     else:
         cover_letter = generate_cover_letter(name, role, jd, cv)
         if cover_letter:
