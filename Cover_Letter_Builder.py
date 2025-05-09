@@ -13,13 +13,13 @@ client = None  # Initialize client as None
 # Try to initialize OpenAI client with the provided key
 if openai_api_key:
     try:
-        client = OpenAI(api_key=openai_api_key)
+        client = OpenAI(api_key=openai_api_key, base_url="https://api.deepseek.com")
     except AuthenticationError:
         st.sidebar.error("Invalid OpenAI API Key. Please check your key or get a new one from the [OpenAI API Keys page](https://platform.openai.com/account/api-keys).")
         client = None  # Ensure client remains None if there's an authentication error
 
 
-def get_completion_from_messages(messages, model="gpt-4o", temperature=0, max_tokens=8192):
+def get_completion_from_messages(messages, model="deepseek-chat", temperature=0, max_tokens=8192):
     # Prevent API call if the client is None
     if client is None:
         st.error("OpenAI client is not initialized due to an invalid API key.")
